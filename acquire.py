@@ -19,6 +19,7 @@
 #       Class Methods:
 #
 #           __init__(self)
+#           pre_preparation(self, df)
 #
 #       Inherited Methods:
 #
@@ -26,6 +27,8 @@
 #
 #
 ################################################################################
+
+import pandas as pd
 
 try:
     from _acquire import Acquire
@@ -36,6 +39,7 @@ except ModuleNotFoundError:
 
 class AcquireZillow(Acquire):
 
+    ################################################################################
 
     def __init__(self):
 
@@ -76,3 +80,21 @@ class AcquireZillow(Acquire):
                 
             WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
         '''
+
+    ################################################################################
+
+    def pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
+        drop_columns = [
+            'heatingorsystemtypeid',
+            'storytypeid',
+            'propertylandusetypeid',
+            'buildingclasstypeid',
+            'architecturalstyletypeid',
+            'airconditioningtypeid',
+            'typeconstructiontypeid',
+            'id',
+            'parcelid'
+        ]
+
+        df = df.drop(columns = drop_columns)
+        return df

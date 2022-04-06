@@ -23,6 +23,7 @@
 #
 #           __init__(self, file_name, database_name, sql)
 #           get_data(self, use_cache = True, cache_data = True)
+#           load_data(self, use_cache = True, cache_data = True)
 #
 #
 ################################################################################
@@ -77,6 +78,12 @@ class Acquire:
     ################################################################################
 
     def get_data(self, use_cache: bool = True, cache_data: bool = True) -> pd.DataFrame:
+        df = self.load_data(use_cache, cache_data)
+        return self.pre_preparation(df)
+
+    ################################################################################
+
+    def load_data(self, use_cache: bool = True, cache_data: bool = True) -> pd.DataFrame:
         '''
             Return a dataframe containing data from the database defined by 
             self.database_name.
@@ -115,3 +122,8 @@ class Acquire:
                 df.to_csv(self.file_name, index = False)
 
             return df
+
+    ################################################################################
+
+    def pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df
