@@ -47,7 +47,8 @@ def summarize_row_nulls(df):
 ################################################################################
 
 def prepare_zillow(df):
-    pass
+    df_copy = df.copy()
+    return drop_missing_values(df_copy, prop_required_column = 0.8, prop_required_row = 1)
 
 ################################################################################
 
