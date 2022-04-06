@@ -2,7 +2,7 @@
 #
 #
 #
-#       acquire_zillow.py
+#       acquire.py
 #
 #       Description: Description
 #
@@ -20,11 +20,15 @@
 #
 #           __init__(self)
 #
+#       Inherited Methods:
+#
+#           get_data(self, use_cache = True, cache_data = True)
+#
 #
 ################################################################################
 
 try:
-    from acquire import Acquire
+    from _acquire import Acquire
 except ModuleNotFoundError:
     from util.acquire import Acquire
 
@@ -40,7 +44,16 @@ class AcquireZillow(Acquire):
         self.database_name = 'zillow'
         self.sql = '''
             SELECT
-                *
+                properties_2017.*,
+                logerror,
+                transactiondate,
+                typeconstructiondesc,
+                airconditioningdesc,
+                architecturalstyledesc,
+                buildingclassdesc,
+                propertylandusedesc,
+                storydesc,
+                heatingorsystemdesc
             FROM properties_2017
             JOIN predictions_2017 ON properties_2017.parcelid = predictions_2017.parcelid
                 AND predictions_2017.transactiondate LIKE '2017%%'

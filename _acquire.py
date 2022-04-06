@@ -2,7 +2,7 @@
 #
 #
 #
-#       acquire.py
+#       _acquire.py
 #
 #       Description: This file contains an Acquire class which can be used as a
 #           parent class for data acquisition. Simply inherit the class and 
