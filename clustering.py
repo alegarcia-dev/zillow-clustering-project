@@ -40,10 +40,10 @@ def plot_kmeans_inertia(df: pd.DataFrame, columns: list[str], k_range: tuple[int
 
 ################################################################################
 
-def create_clusters(df: pd.DataFrame, columns: list[str], k: int) -> pd.DataFrame:
+def create_clusters(df: pd.DataFrame, columns: list[str], k: int, random_seed = 24) -> pd.DataFrame:
     df_copy = df.copy()
     
-    kmeans = KMeans(n_clusters = k)
+    kmeans = KMeans(n_clusters = k, random_state = random_seed)
     kmeans.fit(df_copy[columns])
 
     df_copy['cluster'] = kmeans.predict(df_copy[columns])

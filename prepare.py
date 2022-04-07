@@ -25,6 +25,7 @@
 import os
 import pandas as pd
 
+from sklearn.cluster import KMeans
 from sklearn.impute import SimpleImputer
 
 from preprocessing import split_data
@@ -48,7 +49,37 @@ def summarize_row_nulls(df):
 
 ################################################################################
 
-def prepare_zillow(df):
+def prepare_and_split(df, random_seed = 24):
+    df_copy = prepare_for_model(df)
+
+    train, validate, test = split_data(df_copy)
+
+    columns = [
+        'property_age',
+        'square_feet',
+        'lot_size'
+    ]
+    k = 4
+    kmeans = KMeans(n_clusters = k, random_state = random_seed)
+    kmeans.fit(train[columns])
+
+    train['cluster'] = kmeans.predict(train[columns])
+    train.cluster = train.cluster.astype('category')
+    train = pd.concat([train, pd.get_dummies(train[['cluster']], drop_first = True)], axis = 1)
+
+    validate['cluster'] = kmeans.predict(validate[columns])
+    validate.cluster = validate.cluster.astype('category')
+    validate = pd.concat([validate, pd.get_dummies(validate[['cluster']], drop_first = True)], axis = 1)
+
+    test['cluster'] = kmeans.predict(test[columns])
+    test.cluster = test.cluster.astype('category')
+    test = pd.concat([test, pd.get_dummies(test[['cluster']], drop_first = True)], axis = 1)
+
+    return train, validate, test
+
+################################################################################
+
+def prepare_for_model(df):
     df_copy = df.copy()
     df_copy = drop_missing_values(df_copy, prop_required_column = 0.8, prop_required_row = 1)
     df_copy = get_single_unit_properties(df_copy)
@@ -56,15 +87,31 @@ def prepare_zillow(df):
     df_copy['property_age'] = 2017 - df_copy['yearbuilt']
     df_copy = create_zip_code_bins(df_copy)
 
-    columns = [
+    df_copy = df_copy.rename(columns = {
+        'calculatedfinishedsquarefeet' : 'square_feet',
+        'lotsizesquarefeet' : 'lot_size',
+        'taxvaluedollarcnt' : 'tax_assessed_value'
+    })
+
+    columns_to_keep = [
+        'square_feet',
+        'lot_size',
         'property_age',
-        'calculatedfinishedsquarefeet',
-        'lotsizesquarefeet'
+        'non_average_zip_code',
+        'logerror',
+        'bathroomcnt',
+        'bedroomcnt',
+        'tax_assessed_value'
     ]
-    k = 4
-    df_copy = create_clusters(df_copy, columns, k)
-    df_copy = pd.get_dummies(df_copy, columns = ['cluster'])
-    
+    df_copy = df_copy[columns_to_keep]
+
+    return df_copy
+
+def prepare_zillow(df):
+    df_copy = df.copy()
+    df_copy = drop_missing_values(df_copy, prop_required_column = 0.8, prop_required_row = 1)
+    df_copy = get_single_unit_properties(df_copy)
+
     return df_copy
 
 ################################################################################
