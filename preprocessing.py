@@ -173,6 +173,7 @@ def scale_data(
         tuple(DataFrame): A tuple of three dataframes with all the numeric 
             columns scaled.
     '''
+    columns = list(columns)
     if not columns:
         raise ValueError('columns is a required argument.')
 
@@ -181,7 +182,7 @@ def scale_data(
     train_scaled = train.copy()
     train_scaled[columns] = scaler.fit_transform(train[columns])
 
-    if validate and test:
+    if validate is not None and test is not None:
         validate_scaled, test_scaled = validate.copy(), test.copy()
         validate_scaled[columns] = scaler.transform(validate[columns])
         test_scaled[columns] = scaler.transform(test[columns])
