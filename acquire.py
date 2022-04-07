@@ -30,10 +30,7 @@
 
 import pandas as pd
 
-try:
-    from _acquire import Acquire
-except ModuleNotFoundError:
-    from util.acquire import Acquire
+from _acquire import Acquire
 
 ################################################################################
 

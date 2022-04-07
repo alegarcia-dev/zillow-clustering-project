@@ -32,10 +32,7 @@
 import os
 import pandas as pd
 
-try:
-    from get_db_url import get_db_url
-except ModuleNotFoundError:
-    from util.get_db_url import get_db_url
+from get_db_url import get_db_url
 
 ################################################################################
 
