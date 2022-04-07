@@ -19,7 +19,7 @@
 #       Class Methods:
 #
 #           __init__(self)
-#           pre_preparation(self, df)
+#           _pre_preparation(self, df)
 #
 #       Inherited Methods:
 #
@@ -83,7 +83,7 @@ class AcquireZillow(Acquire):
 
     ################################################################################
 
-    def pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
         drop_columns = [
             'heatingorsystemtypeid',
             'storytypeid',

@@ -23,7 +23,8 @@
 #
 #           __init__(self, file_name, database_name, sql)
 #           get_data(self, use_cache = True, cache_data = True)
-#           load_data(self, use_cache = True, cache_data = True)
+#           _load_data(self, use_cache = True, cache_data = True)
+#           _pre_preparation(self, df)
 #
 #
 ################################################################################
@@ -46,13 +47,9 @@ class Acquire:
         Instance Methods
         ----------------
         __init__: Returns None
-            Initialize the Acquire object with the file_name, database_name, 
-            and SQL query provided.
-
         get_data: Returns DataFrame
-            Acquire and return a DataFrame containing the data from the 
-            database. By default will cache the data in a csv file and will 
-            read the data from the csv file if it exists.
+        _load_data: Return DataFrame
+        _pre_preparation: Return DataFrame
     '''
 
     ################################################################################
@@ -78,12 +75,32 @@ class Acquire:
     ################################################################################
 
     def get_data(self, use_cache: bool = True, cache_data: bool = True) -> pd.DataFrame:
-        df = self.load_data(use_cache, cache_data)
-        return self.pre_preparation(df)
+        '''
+            Acquire the data from either the database or csv file and perform 
+            any pre preparation transformations that are defined.
+        
+            Parameters
+            ---------- 
+            use_cache: bool, default True
+                If True the dataset will be retrieved from a csv file if one
+                exists, otherwise, it will be retrieved from the MySQL database. 
+                If False the dataset will be retrieved from the MySQL database
+                even if the csv file exists.
+
+            cache_data: bool, default True
+                If True the dataset will be cached in a csv file.
+
+            Returns
+            -------
+            DataFrame: A Pandas DataFrame containing data from the source provided.
+        '''
+
+        df = self._load_data(use_cache, cache_data)
+        return self._pre_preparation(df)
 
     ################################################################################
 
-    def load_data(self, use_cache: bool = True, cache_data: bool = True) -> pd.DataFrame:
+    def _load_data(self, use_cache: bool = True, cache_data: bool = True) -> pd.DataFrame:
         '''
             Return a dataframe containing data from the database defined by 
             self.database_name.
@@ -125,5 +142,21 @@ class Acquire:
 
     ################################################################################
 
-    def pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _pre_preparation(self, df: pd.DataFrame) -> pd.DataFrame:
+        '''
+            Perform any necessary pre preparation transformations on the data 
+            that either cannot be done in SQL or are simply easier with pandas. 
+            This function must be overwritten in a child class otherwise it 
+            does nothing.
+        
+            Parameters
+            ----------
+            df: DataFrame
+                A pandas DataFrame acquired by the get_data function.
+        
+            Returns
+            -------
+            DataFrame: The acquired DataFrame with any defined transformations.
+        '''
+
         return df
