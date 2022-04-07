@@ -12,9 +12,9 @@
 #
 #       Functions:
 #
-#           split_data(df, stratify, random_seed = 24)
+#           split_data(df, random_seed = 24, stratify = None)
 #           remove_outliers(df, k, col_list)
-#           scale_data(train, validate, test, columns, strategy)
+#           scale_data(train, validate = None, test = None, columns = None, strategy = 'MinMaxScaler')
 #
 #
 ################################################################################
@@ -56,15 +56,17 @@ def split_data(df: pd.core.frame.DataFrame, random_seed: int = 24, stratify: str
             the input to this function will already have been prepared and
             tidied so that it will be ready for exploratory analysis.
 
-        stratify : str
-            A string value containing the name of the column to be stratified
-            in the sklearn train_test_split function. This parameter should
-            be the name of a column in the df dataframe.
-
         random_seed : int, default 24
             An integer value to be used as the random number seed. This parameter
             is passed to the random_state argument in the sklearn train_test_split
             function.
+
+        stratify : str, default None
+            A string value containing the name of the column to be stratified
+            in the sklearn train_test_split function. This parameter should
+            be the name of a column in the df dataframe. By default this 
+            function will not stratify on any column. Stratifying should only 
+            be necessary for classification problems.
 
         Returns
         -------
@@ -130,27 +132,37 @@ def remove_outliers(df: pd.core.frame.DataFrame, k: float, col_list: list[str]) 
 
 ################################################################################
 
-def scale_data(train: pd.DataFrame, validate: pd.DataFrame, test: pd.DataFrame, columns: list[str], strategy: str = 'MinMaxScaler') -> tuple[
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame
-]:
+def scale_data(
+    train: pd.DataFrame,
+    validate: pd.DataFrame = None,
+    test: pd.DataFrame = None,
+    columns: list[str] = None,
+    strategy: str = 'MinMaxScaler'
+) -> tuple[pd.DataFrame]:
     '''
-        Scale all numeric columns using a MinMaxScaler.
+        Scale all numeric columns using a MinMaxScaler. If one or two dataframes 
+        are passed to the function only the first dataframe will be scaled and 
+        returned. If three dataframes are passed to the function all three 
+        dataframes will be scaled and returned.
+
+        The columns parameter, although set with a default value, is a required 
+        argument. If the columns to scale is not provided a ValueError will be 
+        raised.
     
         Parameters
         ----------
         train: DataFrame
             The training dataset for a machine learning problem.
 
-        validate: DataFrame
+        validate: DataFrame, default None
             The out of sample validate dataset for a machine learning problem.
 
-        test: DataFrame
+        test: DataFrame, default None
             The out of sample test dataset for a machine learning problem.
 
-        columns: list[str]
-            A list of the columns that should be scaled.
+        columns: list[str], default None
+            A list of the columns that should be scaled. This is a required 
+            argument.
 
         strategy: str, default MinMaxScaler
             The name of the scaler to use when scaling. Possible values are 
@@ -161,13 +173,18 @@ def scale_data(train: pd.DataFrame, validate: pd.DataFrame, test: pd.DataFrame, 
         tuple(DataFrame): A tuple of three dataframes with all the numeric 
             columns scaled.
     '''
-
-    train_scaled, validate_scaled, test_scaled = train.copy(), validate.copy(), test.copy()
+    if not columns:
+        raise ValueError('columns is a required argument.')
 
     scaler = scalers[strategy]()
-    
+
+    train_scaled = train.copy()
     train_scaled[columns] = scaler.fit_transform(train[columns])
-    validate_scaled[columns] = scaler.transform(validate[columns])
-    test_scaled[columns] = scaler.transform(test[columns])
-    
-    return train_scaled, validate_scaled, test_scaled
+
+    if validate and test:
+        validate_scaled, test_scaled = validate.copy(), test.copy()
+        validate_scaled[columns] = scaler.transform(validate[columns])
+        test_scaled[columns] = scaler.transform(test[columns])
+        return train_scaled, validate_scaled, test_scaled
+
+    return train_scaled
