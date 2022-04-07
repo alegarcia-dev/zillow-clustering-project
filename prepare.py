@@ -28,6 +28,7 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 
 from preprocessing import split_data
+from clustering import create_clusters
 
 ################################################################################
 
@@ -50,7 +51,20 @@ def summarize_row_nulls(df):
 def prepare_zillow(df):
     df_copy = df.copy()
     df_copy = drop_missing_values(df_copy, prop_required_column = 0.8, prop_required_row = 1)
-    df_copy = get_single_unit_properties(df)
+    df_copy = get_single_unit_properties(df_copy)
+
+    df_copy['property_age'] = 2017 - df_copy['yearbuilt']
+    df_copy = create_zip_code_bins(df_copy)
+
+    columns = [
+        'property_age',
+        'calculatedfinishedsquarefeet',
+        'lotsizesquarefeet'
+    ]
+    k = 4
+    df_copy = create_clusters(df_copy, columns, k)
+    df_copy = pd.get_dummies(df_copy, columns = ['cluster'])
+    
     return df_copy
 
 ################################################################################
@@ -91,3 +105,22 @@ def feature_engineering(df):
     df['taxrate'] = df['taxamount'] / df['taxvaluedollarcnt']
     df['dollars_per_sqft'] = df['taxvaluedollarcnt'] / df['calculatedfinishedsquarefeet']
     return df
+
+################################################################################
+
+def create_zip_code_bins(df):
+    zip_codes = [
+        96095.0, 96985.0, 96522.0, 96045.0, 96415.0, 96152.0, 96190.0, 96974.0, 
+        96289.0, 96026.0, 96517.0, 96280.0, 96201.0, 96336.0, 96212.0, 95997.0, 
+        96029.0, 96271.0, 96123.0, 97298.0, 97026.0, 96006.0, 96294.0, 96508.0, 
+        96437.0, 96047.0, 96507.0, 96217.0, 96426.0, 96514.0, 95989.0, 96020.0, 
+        96022.0, 96326.0, 96127.0, 96005.0, 96120.0, 96379.0, 96234.0, 95984.0, 
+        96016.0, 96240.0, 96017.0, 96103.0, 97084.0, 96097.0, 96137.0, 96043.0, 
+        96136.0, 96134.0, 96216.0
+    ]
+
+    df_copy = df.copy()
+    df_copy['non_average_zip_code'] = df_copy.regionidzip.isin(zip_codes)
+    df_copy.non_average_zip_code.astype = df_copy.non_average_zip_code.astype('int')
+
+    return df_copy
