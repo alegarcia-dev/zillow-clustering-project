@@ -52,7 +52,7 @@ def summarize_row_nulls(df):
 def prepare_and_split(df, random_seed = 24):
     df_copy = prepare_for_model(df)
 
-    train, validate, test = split_data(df_copy)
+    train, validate, test = split_data(df_copy, random_seed = 13)
 
     columns = [
         'property_age',

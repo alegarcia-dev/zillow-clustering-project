@@ -37,7 +37,6 @@ final results, and a recommendations.
     2. [Data Preparation](#data-preparation)
     3. [Exploratory Analysis](#exploratory-analysis)
     4. [Modeling](#modeling)
-7. [Key Takeaways and Recommendations](#key-takeaways-and-recommendations)
 
 ## Project Goals
 
