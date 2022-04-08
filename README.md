@@ -60,10 +60,11 @@ Zillow is interested in identifying what attributes are driving the logerror in 
 | --------------------- | ------------ |
 | calculatedfinishedsquarefeet/square_feet | Calculated total finished living area of the home |
 | lotsizesquarefeet/lot_size     | Area of the lot in square feet |
-| regionidzip           | Zip code in which the property is located |
+| regionidzip/zip_code  | Zip code in which the property is located |
 | yearbuilt             | The year the principal residence was built |
+| yearbuilt_binned      | The year the principal residence was built binned into four groups |
 | property_age          | The age in years of the principal residence |
-| taxvaluedollarcnt     | The total tax assessed value of the parcel |
+| taxvaluedollarcnt/tax_assessed_value | The total tax assessed value of the parcel |
 | bathroomcnt           | Number of bathrooms in home including fractional bathrooms |
 | bedroomcnt            | Number of bedrooms in home |
 | logerror              | The difference between the log of the Zestimate and the log of the sale price |
