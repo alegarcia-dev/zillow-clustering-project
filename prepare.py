@@ -90,7 +90,8 @@ def prepare_for_model(df):
     df_copy = df_copy.rename(columns = {
         'calculatedfinishedsquarefeet' : 'square_feet',
         'lotsizesquarefeet' : 'lot_size',
-        'taxvaluedollarcnt' : 'tax_assessed_value'
+        'taxvaluedollarcnt' : 'tax_assessed_value',
+        'regionidzip' : 'zip_code'
     })
 
     columns_to_keep = [
@@ -98,6 +99,7 @@ def prepare_for_model(df):
         'lot_size',
         'property_age',
         'non_average_zip_code',
+        'zip_code',
         'logerror',
         'bathroomcnt',
         'bedroomcnt',
