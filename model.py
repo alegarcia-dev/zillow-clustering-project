@@ -61,7 +61,6 @@ def create_models(df):
     models = []
     features = [
         'square_feet',
-        'property_age',
         'non_average_zip_code',
         'tax_assessed_value'
     ]
@@ -91,7 +90,12 @@ def create_models(df):
 ################################################################################
 
 def evaluate_models(baseline, models, train, validate, target):
-    results = {'baseline' : {'RMSE_train' : mean_squared_error(train[target], baseline, squared = False)}}
+    results = {
+        'baseline' : {
+            'RMSE_train' : mean_squared_error(train[target], baseline, squared = False),
+            'RMSE_validate' : mean_squared_error(validate[target], pd.Series([baseline[0]] * validate.shape[0]), squared = False)
+        }
+    }
 
     labels = [
         'linear_regression_no_clusters',

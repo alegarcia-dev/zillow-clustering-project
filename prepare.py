@@ -28,7 +28,7 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.impute import SimpleImputer
 
-from preprocessing import split_data
+from preprocessing import split_data, scale_data
 from clustering import create_clusters
 
 ################################################################################
@@ -53,6 +53,7 @@ def prepare_and_split(df, random_seed = 24):
     df_copy = prepare_for_model(df)
 
     train, validate, test = split_data(df_copy, random_seed = 13)
+    train_scaled, validate_scaled, test_scaled = scale_data(train, validate, test, train.drop(columns = ['logerror', 'yearbuilt_binned']).columns)
 
     columns = [
         'property_age',
@@ -61,17 +62,17 @@ def prepare_and_split(df, random_seed = 24):
     ]
     k = 4
     kmeans = KMeans(n_clusters = k, random_state = random_seed)
-    kmeans.fit(train[columns])
+    kmeans.fit(train_scaled[columns])
 
-    train['cluster'] = kmeans.predict(train[columns])
+    train['cluster'] = kmeans.predict(train_scaled[columns])
     train.cluster = train.cluster.astype('category')
     train = pd.concat([train, pd.get_dummies(train[['cluster']], drop_first = True)], axis = 1)
 
-    validate['cluster'] = kmeans.predict(validate[columns])
+    validate['cluster'] = kmeans.predict(validate_scaled[columns]) 
     validate.cluster = validate.cluster.astype('category')
     validate = pd.concat([validate, pd.get_dummies(validate[['cluster']], drop_first = True)], axis = 1)
 
-    test['cluster'] = kmeans.predict(test[columns])
+    test['cluster'] = kmeans.predict(test_scaled[columns])
     test.cluster = test.cluster.astype('category')
     test = pd.concat([test, pd.get_dummies(test[['cluster']], drop_first = True)], axis = 1)
 
@@ -86,6 +87,9 @@ def prepare_for_model(df):
 
     df_copy['property_age'] = 2017 - df_copy['yearbuilt']
     df_copy = create_zip_code_bins(df_copy)
+
+    bins = [1800, 1925, 1950, 1975, 2000, 2020]
+    df_copy['yearbuilt_binned'] = pd.cut(df_copy['yearbuilt'], bins)
 
     df_copy = df_copy.rename(columns = {
         'calculatedfinishedsquarefeet' : 'square_feet',
@@ -103,7 +107,8 @@ def prepare_for_model(df):
         'logerror',
         'bathroomcnt',
         'bedroomcnt',
-        'tax_assessed_value'
+        'tax_assessed_value',
+        'yearbuilt_binned'
     ]
     df_copy = df_copy[columns_to_keep]
 
